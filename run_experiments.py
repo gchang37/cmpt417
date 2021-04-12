@@ -7,6 +7,7 @@ from cbs import CBSSolver
 from independent import IndependentSolver
 from prioritized import PrioritizedPlanningSolver
 from sipp_independent import SIPP_IndependentSolver
+from graph_generation import SippGraph
 from visualize import Animation
 from single_agent_planner import get_sum_of_cost
 
@@ -90,8 +91,8 @@ if __name__ == '__main__':
     for file in sorted(glob.glob(args.instance)):
 
         print("***Import an instance***")
-        my_map, starts, goals = import_mapf_instance(file)
-        print_mapf_instance(my_map, starts, goals)
+        my_map1, starts, goals = import_mapf_instance(file)
+        print_mapf_instance(my_map1, starts, goals)
 
         if args.solver == "CBS":
             print("***Run CBS***")
@@ -99,8 +100,9 @@ if __name__ == '__main__':
             paths = cbs.find_solution(args.disjoint)
         elif args.solver == "Independent":
             print("***Run Independent***")
-            solver = IndependentSolver(my_map, starts, goals)
+            solver = IndependentSolver(my_map1, starts, goals)
             paths = solver.find_solution()
+            print(paths)
         elif args.solver == "Prioritized":
             print("***Run Prioritized***")
             solver = PrioritizedPlanningSolver(my_map, starts, goals)
@@ -108,7 +110,7 @@ if __name__ == '__main__':
         elif args.solver == "Sipp_independent":
             print("***Run SIPP Independent***")
             my_map = SippGraph(file)
-            solver = SIPP_IndependentSolver(my_map, starts, goals)
+            solver = SIPP_IndependentSolver(file,my_map, starts, goals)
             paths = solver.find_solution()
             print("### PATHS ###")
             print(paths)
@@ -121,7 +123,7 @@ if __name__ == '__main__':
 
         if not args.batch:
             print("***Test paths on a simulation***")
-            animation = Animation(my_map, starts, goals, paths)
+            animation = Animation(my_map1, starts, goals, paths)
             # animation.save("output.mp4", 1.0)
             animation.show()
     # result_file.close()

@@ -8,11 +8,14 @@ from math import fabs
 from graph_generation import SippGraph, State
 
 class SippPlanner(SippGraph):
-    def __init__(self, map, agent_id):
-        SippGraph.__init__(self, map)
-        self.start = tuple(map["agents"][agent_id]["start"])
-        self.goal = tuple(map["agents"][agent_id]["goal"])
-        self.name = map["agents"][agent_id]["name"]
+    def __init__(self, filename, agent_info, agent_id):
+        SippGraph.__init__(self, filename)
+        #self.start = tuple(map["agents"][agent_id]["start"])
+        #self.goal = tuple(map["agents"][agent_id]["goal"])
+        #self.name = map["agents"][agent_id]["name"]
+        self.start = agent_info[2*agent_id]
+        self.goal = agent_info[2*agent_id+1]
+        self.name = agent_id
         self.open = []
 
     def get_successors(self, state):

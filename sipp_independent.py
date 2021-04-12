@@ -2,15 +2,27 @@ import time as timer
 from sipp_astar import SippPlanner
 from graph_generation import SippGraph, State
 
+def process_result(result):
+    """" Converts dictionary path to tuple array path for all agents """
+
+    presult = []
+
+    for i in range(len(result)):
+        li=[]
+        for k in range(len(result[0])):
+            li.append((result[i][k]['x'], result[i][k]['y']))
+        presult.append(li)
+    return presult
+
 class SIPP_IndependentSolver(object):
     """A planner that plans for each robot independently."""
 
-    def __init__(self, my_map, starts, goals):
+    def __init__(self, filename, my_map, starts, goals):
         """my_map   - list of lists specifying obstacle positions
         starts      - [(x1, y1), (x2, y2), ...] list of start locations
         goals       - [(x1, y1), (x2, y2), ...] list of goal locations
         """
-
+        self.filename = filename
         self.my_map = my_map
         self.starts = starts
         self.goals = goals
@@ -22,6 +34,8 @@ class SIPP_IndependentSolver(object):
         # self.heuristics = []
         # for goal in self.goals:
         #     self.heuristics.append(get_heuristic(my_map, goal))
+    
+    
 
     def find_solution(self):
         """ Finds paths for all agents from their start locations to their goal locations."""
@@ -31,13 +45,14 @@ class SIPP_IndependentSolver(object):
 
         for i in range(self.num_of_agents):  # Find path for each agent
             print("Inside SIPP find soln!!!!\n")
-            sipp_planner = SippPlanner(self.my_map, i)
+            sipp_planner = SippPlanner(self.filename,self.my_map.agent_info, i)
             if sipp_planner.compute_plan():
                 plan = sipp_planner.get_plan()
                 print("!!!! PLAN: ")
                 print(plan)
                 result.append(plan)
-                map["dynamic_obstacles"].update(plan)
+                #TODO: update dynamic_obstacles
+                #map["dynamic_obstacles"].update(plan)
             else:
                 raise BaseException('No solutions')
 
@@ -49,4 +64,6 @@ class SIPP_IndependentSolver(object):
         print("CPU time (s):    {:.2f}".format(self.CPU_time))
         # print("Sum of costs:    {}".format(get_sum_of_cost(result)))
 
-        return result
+        presult = process_result(result)
+
+        return presult

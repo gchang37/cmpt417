@@ -5,6 +5,7 @@ See the article: 10.1109/ICRA.2011.5980306
 """
 import pdb
 from bisect import bisect
+from pathlib import Path
 
 class State(object):
     def __init__(self, position=(-1,-1), t=0, interval=(0,float('inf'))):
@@ -49,16 +50,61 @@ class SippGrid(object):
             self.interval_list.sort()
 
 class SippGraph(object):
-    def __init__(self, filename):
+    def __init__(self, filename, dynamic_obstacles):
+        #TODO
+        # fix everything associated with dynamic_obstables
+
         #import_mapf_instance
         # line 40~58
-        self.map = map
-        self.dimensions = map["map"]["dimensions"]
+        f=Path(filename)
+        if not f.is_file():
+            raise BaseException(filename + " does not exist.")
+        f = open(filename, 'r')
 
-        self.obstacles = [tuple(v) for v in map["map"]["obstacles"]]        
+        # first line: #rows #columns
+        line = f.readline()
+        rows, columns = [int(x) for x in line.split(' ')]
+        rows = int(rows)
+        columns = int(columns)
+
+        # #rows lines with the map
+        my_map = []
+        for r in range(rows):
+            line = f.readline()
+            my_map.append([])
+            for cell in line:
+                if cell == '@':
+                    my_map[-1].append(True)
+                elif cell == '.':
+                    my_map[-1].append(False)
+
+
+        self.map = my_map
+        #self.dimensions = map["map"]["dimensions"]
+        self.dimensions = (rows, columns)
+
+        #self.obstacles = [tuple(v) for v in map["map"]["obstacles"]]        
+        self.obstacles = []
+        for x in range(len(my_map)):
+            for y in range(len(my_map[0])):
+                if my_map[x][y] :
+                    self.obstacles.append((x,y))
         
+        # #agents
+        line = f.readline()
+        num_agents = int(line)
+        # #agents lines with the start/goal positions
+        self.agent_info = []
+        for a in range(num_agents):
+            line = f.readline()
+            sx, sy, gx, gy = [int(x) for x in line.split(' ')]
+            self.agent_info.append((sx, sy))
+            self.agent_info.append((gx, gy))
+        f.close()
+
         #need to update
-        self.dyn_obstacles = map["dynamic_obstacles"]
+        #self.dyn_obstacles = map["dynamic_obstacles"]
+        self.dyn_obstacles = []
 
         self.sipp_graph = {}
         self.init_graph()
