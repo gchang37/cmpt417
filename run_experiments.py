@@ -7,6 +7,7 @@ from cbs import CBSSolver
 from independent import IndependentSolver
 from prioritized import PrioritizedPlanningSolver
 from sipp_independent import SIPP_IndependentSolver
+from sipp_cbs import SIPP_CBSSolver
 from graph_generation import SippGraph
 from visualize import Animation
 from single_agent_planner import get_sum_of_cost
@@ -110,10 +111,14 @@ if __name__ == '__main__':
         elif args.solver == "Sipp_independent":
             print("***Run SIPP Independent***")
             my_map = SippGraph(file, None)
-            solver = SIPP_IndependentSolver(file,my_map, starts, goals)
+            solver = SIPP_IndependentSolver(file, my_map, starts, goals)
             paths = solver.find_solution()
             print("### PATHS ###")
             print(paths)
+        elif args.solver == "Sipp_CBS":
+            print("***Run SIPP CBS***")
+            solver = SIPP_CBSSolver()
+            paths = solver.find_solution()
         else:
             raise RuntimeError("Unknown solver!")
 
