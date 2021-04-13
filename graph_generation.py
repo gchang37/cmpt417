@@ -105,7 +105,12 @@ class SippGraph(object):
         #need to update
         #self.dyn_obstacles = map["dynamic_obstacles"]
         self.dyn_obstacles = []
-
+        if bool(dynamic_obstacles):
+            for obs in dynamic_obstacles:
+                self.dyn_obstacles.append(obs)
+            #self.dyn_obstacles.append(dynamic_obstacles)
+            print("SIPP Graph INIT: dyn_obstabcles []")
+            print(self.dyn_obstacles)
         self.sipp_graph = {}
         self.init_graph()
         self.init_intervals()
@@ -118,7 +123,7 @@ class SippGraph(object):
 
     def init_intervals(self):
         if not self.dyn_obstacles: return
-        for schedule in self.dyn_obstacles.values():
+        for schedule in self.dyn_obstacles:
             # for location in schedule:
             for i in range(len(schedule)):
                 location = schedule[i]

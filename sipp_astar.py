@@ -8,8 +8,8 @@ from math import fabs
 from graph_generation import SippGraph, State
 
 class SippPlanner(SippGraph):
-    def __init__(self, filename, agent_info, agent_id):
-        SippGraph.__init__(self, filename)
+    def __init__(self, filename, agent_info, agent_id, dyn_obstacles):
+        SippGraph.__init__(self, filename, dyn_obstacles)
         #self.start = tuple(map["agents"][agent_id]["start"])
         #self.goal = tuple(map["agents"][agent_id]["goal"])
         #self.name = map["agents"][agent_id]["name"]

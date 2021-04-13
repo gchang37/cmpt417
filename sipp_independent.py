@@ -9,9 +9,9 @@ def process_result(result):
 
     for i in range(len(result)):
         li=[]
-        for k in range(len(result[0])):
+        for k in range(len(result[i])):
             li.append((result[i][k]['x'], result[i][k]['y']))
-        presult.append(li)
+        presult.append(li)            
     return presult
 
 class SIPP_IndependentSolver(object):
@@ -45,15 +45,17 @@ class SIPP_IndependentSolver(object):
 
         for i in range(self.num_of_agents):  # Find path for each agent
             print("Inside SIPP find soln!!!!\n")
-            sipp_planner = SippPlanner(self.filename,self.my_map.agent_info, i)
+            sipp_planner = SippPlanner(self.filename,self.my_map.agent_info, i, result)
             if sipp_planner.compute_plan():
                 plan = sipp_planner.get_plan()
                 print("!!!! PLAN: ")
                 print(plan)
                 result.append(plan)
-                #TODO: update dynamic_obstacles
-                #map["dynamic_obstacles"].update(plan)
+                print(result)
+                #TODO add a time constraint for agent to be at goal location at designated time
+                
             else:
+                #TODO NO SOLN MSG ->  NOT SEEN
                 raise BaseException('No solutions')
 
         ##############################

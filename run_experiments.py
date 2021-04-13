@@ -109,7 +109,7 @@ if __name__ == '__main__':
             paths = solver.find_solution()
         elif args.solver == "Sipp_independent":
             print("***Run SIPP Independent***")
-            my_map = SippGraph(file)
+            my_map = SippGraph(file, None)
             solver = SIPP_IndependentSolver(file,my_map, starts, goals)
             paths = solver.find_solution()
             print("### PATHS ###")
