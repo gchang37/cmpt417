@@ -7,7 +7,7 @@ from cbs import CBSSolver
 from independent import IndependentSolver
 from prioritized import PrioritizedPlanningSolver
 from sipp_independent import SIPP_IndependentSolver
-from sipp_cbs import SIPP_CBSSolver
+#from sipp_cbs import SIPP_CBSSolver
 from graph_generation import SippGraph
 from visualize import Animation
 from single_agent_planner import get_sum_of_cost

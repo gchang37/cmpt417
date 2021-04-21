@@ -5,7 +5,6 @@ author: Ashwin Bose (@atb033)
 import sys
 sys.path.insert(0, '../')
 import argparse
-import yaml
 from math import fabs
 from itertools import combinations
 from copy import deepcopy
@@ -128,8 +127,7 @@ class Environment(object):
         if self.state_valid(n) and self.transition_valid(state, n):
             neighbors.append(n)
         return neighbors
-
-
+    
     def get_first_conflict(self, solution):
         max_t = max([len(plan) for plan in solution.values()])
         result = Conflict()
@@ -254,25 +252,67 @@ class SIPP_CBSSolver(object):
     #TODO: add bool variable to plan in find soln
     #TODO: create find_soln()
     #TODO: parse path to find neg paths to add as dynamic obstacles
-    #TODO: create function to detect collision given paths (2+)
-    #TODO: IMPROVED get_first_conflict() and create_constraint_from_conflict() - change vertex and edge constraint -> time interval constraint ; +/- 1 timestep of safe interval
+    #TODO: create_constraint_from_conflict() - change vertex and edge constraint -> time interval constraint ; +/- 1 timestep of safe interval
     #TODO: update edge & vertex collision -> dynamic obstacles 
-    #TODO: more todos
+    #TODO: lovel search - astar
 
-    def __init__(self, environment):
-        self.env = environment
+    def __init__(self):
         self.open_set = set()
         self.closed_set = set()
+    
+    # finds actual collision
+    def detect_collision(path1, path2):    
+        max_t = max(len(path1), len(path2))
+
+        if max_t = len(path1):
+            longer = 1
+        else:
+            longer = 2
+        
+        # list of obstacles
+        # may need to consider edge collision
+        for t in range(max_t):
+            if t <= len(path1):
+                loc_1 =(path1[len(path1)-1]['x'], path1[len(path1)-1]['y'])
+            else:    
+                loc_1 =(path1[t]['x'], path1[t]['y'])
+
+            if t <= len(path2):
+                loc_2 =(path2[len(path2)-1]['x'], path2[len(path2)-1]['y'])
+            else:    
+                loc_2 =(path2[t]['x'], path2[t]['y'])
+
+            if loc_1 == loc_2:
+                if longer == 1:
+                    return path1[t]
+                else:
+                    return path2[t]
+    
+    # iterates through agents to find collisions
+    def agent_get_first_collision(self, paths):
+        result = []
+        index = 0
+        for i in range(len(paths)):
+            for k in range(i+1, len(paths)):
+                result = detect_collision(paths[i], paths[k])
+                #collision detected
+                if result != None:
+                    return result
+        # no collision found
+        return result
+
+
     def search(self):
         start = HighLevelNode()
         # TODO: Initialize it in a better way
+        # TODO: low level search for each agent with SIPP
         start.constraint_dict = {}
-        for agent in self.env.agent_dict.keys():
-            start.constraint_dict[agent] = Constraints()
-        start.solution = self.env.compute_solution()
-        if not start.solution:
-            return {}
-        start.cost = self.env.compute_solution_cost(start.solution)
+        # for agent in self.env.agent_dict.keys():
+        #     start.constraint_dict[agent] = Constraints()
+        # start.solution = self.env.compute_solution()
+        # if not start.solution:
+        #     return {}
+        # start.cost = self.env.compute_solution_cost(start.solution)
 
         self.open_set |= {start}
 
@@ -281,24 +321,25 @@ class SIPP_CBSSolver(object):
             self.open_set -= {P}
             self.closed_set |= {P}
 
-            self.env.constraint_dict = P.constraint_dict
-            conflict_dict = self.env.get_first_conflict(P.solution)
+            # self.env.constraint_dict = P.constraint_dict
+
+            conflict_dict = self.agent_get_first_collision(paths)
             if not conflict_dict:
                 print("solution found")
 
                 return self.generate_plan(P.solution)
 
-            constraint_dict = self.env.create_constraints_from_conflict(conflict_dict)
+            # constraint_dict = self.env.create_constraints_from_conflict(conflict_dict)
 
             for agent in constraint_dict.keys():
                 new_node = deepcopy(P)
                 new_node.constraint_dict[agent].add_constraint(constraint_dict[agent])
 
-                self.env.constraint_dict = new_node.constraint_dict
-                new_node.solution = self.env.compute_solution()
+                # self.env.constraint_dict = new_node.constraint_dict
+                # new_node.solution = self.env.compute_solution()
                 if not new_node.solution:
                     continue
-                new_node.cost = self.env.compute_solution_cost(new_node.solution)
+                # new_node.cost = self.env.compute_solution_cost(new_node.solution)
 
                 # TODO: ending condition
                 if new_node not in self.closed_set:
