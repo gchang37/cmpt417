@@ -51,13 +51,18 @@ class SippPlanner(SippGraph):
         self.open.append((f_start, s_start))
 
         while (not goal_reached):
-            if self.open == {}: 
+            # print("OPEN LIST:")
+            # print(self.open)
+            if self.open == []: 
                 # Plan not found
+                # print("Expected to this msg for no plans found")
                 return 0
             s = self.open.pop(0)[1]
             successors = self.get_successors(s)
     
             for successor in successors:
+                # print("Successor")
+                # print(successor)
                 if self.sipp_graph[successor.position].g > self.sipp_graph[s.position].g + cost:
                     self.sipp_graph[successor.position].g = self.sipp_graph[s.position].g + cost
                     self.sipp_graph[successor.position].parent_state = s

@@ -355,9 +355,9 @@ class SIPP_CBSSolver(object):
     def create_constraints_from_conflict(self, conflict):
         value = random.randint(0,1)
         if value == 0:
-            chosen_agent = conflict['agent1']
+            chosen_agent = conflict['agent1']+1
         else:
-            chosen_agent = conflict['agent2']
+            chosen_agent = conflict['agent2']+1
 
         constraint_dict = []
 
@@ -458,36 +458,66 @@ class SIPP_CBSSolver(object):
             for constraint in tmp_constraint_dict:
                 print("Cur Constraint: " )
                 print(constraint)
+                emptyPathFound = False
                 new_node = deepcopy(P)
-                if constraint[0]['agent'] >= 0:
-                    curr_agent = constraint[0]['agent']
+                if constraint[0]['agent']-1 >= 0:
+                    curr_agent = constraint[0]['agent']-1
                     new_node.constraint_dict[curr_agent].append(self.add_constraint(constraint))
 
                     print("New node constraint: ", curr_agent )
                     print(new_node.constraint_dict[curr_agent])
     
-                    sipp_planner = SippPlanner(self.filename, self.my_map.agent_info, curr_agent, new_node.constraint_dict[curr_agent])
-                    if sipp_planner.compute_plan():
-                        new_node.solution[curr_agent] = sipp_planner.get_plan()
-                        if not new_node.solution[curr_agent]:
-                                emptyPathFound = True
+                    # sipp_planner = SippPlanner(self.filename, self.my_map.agent_info, curr_agent, new_node.constraint_dict[curr_agent])
+                    # print("SIPP PLANNER_cp:")
+                    # print(sipp_planner.compute_plan())
+
+                    # if sipp_planner.compute_plan():
+                    #     new_node.solution[curr_agent] = sipp_planner.get_plan()
+                    #     print("New node solution")
+                    #     print(new_node.solution[curr_agent])
+                    # else: 
+                    #     # not new_node.solution[curr_agent]:
+                    #     print("sipp planner give 0 = no plan found")
+                    #     emptyPathFound = True
                 else:
                     tmp = self.add_constraint(constraint)
-                    for agent in range(self.num_agents):
-                        if agent == constraint[0]['agent']*-1:
+
+                    for agent in range(self.num_of_agents):
+                        if agent == constraint[0]['agent']*-1-1:
                             continue
                         
                         curr_agent = agent
                         new_node.constraint_dict[agent].append(tmp)
-                        sipp_planner = SippPlanner(self.filename, self.my_map.agent_info, agent, new_node.constraint_dict[agent])
+                        
 
-                        print("New node constraint for : ", curr_agent)
-                        print(new_node.constraint_dict[agent])   
+                        print("NEW node constraint for : ", curr_agent)
+                        print(new_node.constraint_dict[agent]) 
 
-                        if sipp_planner.compute_plan():
-                            new_node.solution[agent] = sipp_planner.get_plan()
-                            if not new_node.solution[curr_agent]:
-                                emptyPathFound = True
+                        # sipp_planner = SippPlanner(self.filename, self.my_map.agent_info, agent, new_node.constraint_dict[agent]) 
+
+                        # print("Sipp planner:") 
+                        # print(sipp_planner)
+
+                        # if sipp_planner.compute_plan():
+                        #     new_node.solution[agent] = sipp_planner.get_plan()
+                        #     print("New node solution")
+                        #     print(new_node.solution[agent])
+                        # else: 
+                        #     # not new_node.solution[curr_agent]:
+                        #     emptyPathFound = True
+
+                for agent in range(self.num_of_agents):
+                    sipp_planner = SippPlanner(self.filename, self.my_map.agent_info, agent, new_node.constraint_dict[agent])
+                    # print("SIPP PLANNER_cp:")
+                    # print(sipp_planner.compute_plan())
+                    if sipp_planner.compute_plan():
+                        new_node.solution[agent] = sipp_planner.get_plan()
+                        print("New node solution")
+                        print(new_node.solution[agent])
+                    else:
+                        print("Path failed for: ", agent) 
+                        emptyPathFound = True 
+                
                 # self.env.constraint_dict = new_node.constraint_dict
                 # new_node.solution = self.env.compute_solution()
                 if emptyPathFound:
@@ -498,6 +528,8 @@ class SIPP_CBSSolver(object):
                 # TODO: ending condition
                 if new_node not in self.closed_set:
                     self.open_set |= {new_node}
+                    print("Added new node")
+        print("Solution NOT found")
         return {}
 
     def generate_plan(self, solution):
