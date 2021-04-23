@@ -44,9 +44,12 @@ class SIPP_IndependentSolver(object):
         result = []
 
         for i in range(self.num_of_agents):  # Find path for each agent
-            print("Inside SIPP find soln!!!!\n")
+            print("Inside SIPP start finding a soln!!!!\n")
             sipp_planner = SippPlanner(self.filename,self.my_map.agent_info, i, result)
-            if sipp_planner.compute_plan():
+            if result != []:
+                    sipp_planner.max_path = len(result[0])
+
+            if sipp_planner.compute_plan():               
                 plan = sipp_planner.get_plan()
                 print("!!!! PLAN: ")
                 print(plan)
@@ -55,7 +58,6 @@ class SIPP_IndependentSolver(object):
                 #TODO add a time constraint for agent to be at goal location at designated time
                 
             else:
-                #TODO NO SOLN MSG ->  NOT SEEN
                 raise BaseException('No solutions')
 
         ##############################

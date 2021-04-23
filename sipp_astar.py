@@ -6,6 +6,7 @@ See the article: DOI: 10.1109/ICRA.2011.5980306
 
 from math import fabs
 from graph_generation import SippGraph, State
+import heapq
 
 class SippPlanner(SippGraph):
     def __init__(self, filename, agent_info, agent_id, dyn_obstacles):
@@ -17,6 +18,7 @@ class SippPlanner(SippGraph):
         self.goal = agent_info[2*agent_id+1]
         self.name = agent_id
         self.open = []
+        self.max_path = 0
 
     def get_successors(self, state):
         successors = []
@@ -36,6 +38,9 @@ class SippPlanner(SippGraph):
 
     def get_heuristic(self, position):
         return fabs(position[0] - self.goal[0]) + fabs(position[1]-self.goal[1])
+
+    def get_first(self, element):
+        return element[0]
 
     def compute_plan(self):
         self.open = []
@@ -59,21 +64,29 @@ class SippPlanner(SippGraph):
                 return 0
             s = self.open.pop(0)[1]
             successors = self.get_successors(s)
-    
+
             for successor in successors:
-                # print("Successor")
-                # print(successor)
+                print("Successor pos:", successor.position)
+                print("successor g(): ", self.sipp_graph[successor.position].g)
+                print("parent g(): ", self.sipp_graph[s.position].g + cost)
+                
                 if self.sipp_graph[successor.position].g > self.sipp_graph[s.position].g + cost:
+
                     self.sipp_graph[successor.position].g = self.sipp_graph[s.position].g + cost
                     self.sipp_graph[successor.position].parent_state = s
 
-                    if successor.position == self.goal:
+                    print("Successor time: ", successor.time)
+                    print("Max path: ", self.max_path)
+                    if successor.position == self.goal and successor.time > self.max_path:
                         print("Plan successfully calculated!!")
                         goal_reached = True
                         break
 
                     self.sipp_graph[successor.position].f = self.sipp_graph[successor.position].g + self.get_heuristic(successor.position)
                     self.open.append((self.sipp_graph[successor.position].f, successor))
+            
+            self.open.sort(key = self.get_first)
+            
 
         # Tracking back
         start_reached = False
